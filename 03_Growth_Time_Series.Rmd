@@ -37,4 +37,4 @@ mpd2018 %>%
     y = "Log GDP per Capita"
   )
 ```
-In the long run, most of the big countries suffered an economic loss due to WWII, however in Japan and Germany it is more severe compared to other economies. The U.S keeps a steady growth thoroughout the history, followed by the U.K. Germany and Japan grew quickly after the war, caught up with the U.K and are closing the gap with the U.S. China also grew after the war, however due to its large population, it may not look as significant as other economies.
+In the long run, most of the big countries suffered an economic loss due to WWII, however in Japan and Germany it is more severe compared to other economies. The U.S keeps a steady growth throughout the history, followed by the U.K. Germany and Japan grew quickly after the war, caught up with the U.K and are closing the gap with the U.S. China also grew after the war, however due to its large population, it may not look as significant as other economies.
