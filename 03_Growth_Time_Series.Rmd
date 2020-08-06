@@ -1,0 +1,40 @@
+---
+title: "Growth Time Series"
+output: html_notebook
+---
+Load essential libraries
+```{r}
+library(tidyverse)
+library(haven)
+```
+Data
+```{r}
+mpd2018 <- read_dta("datasets/mpd2018.dta")
+```
+Filtering out data for Germany
+```{r}
+mpd_G <- mpd2018 %>%
+  filter(year >= 1900, country == "Germany")
+```
+Plot log real GDP per capita for Germany from 1900 -
+```{r}
+xyplot(log(cgdppc) ~ year, data = mpd_G, type = "l")
+```
+Since we are looking at a long-run perspective, from 1900 to 2016, the real GDP per capita has grown about 10 times.
+```{r}
+mpd_G[117,4] / mpd_G[1,4]
+```
+The GDP per capita of Germany suffered from a dip during 1946 - 1950 period, partly due to the aftermath of the WWII. However, from 1951 onwards, it recovered and has been on a sturdy and stable increasing trend since then.
+
+Now, we compare the GDP per capita trend between several countries.
+```{r}
+mpd2018 %>%
+  filter(country %in% c("Germany", "United States", "United Kingdom", "Japan", "China"), year >= 1900) %>%
+  ggplot(aes(x = year, y = log10(cgdppc), color = country, group = country)) + geom_line() +
+  labs(
+    title = "Log GDP per Capita vs Year (1900 - 2016)",
+    x = "Year",
+    y = "Log GDP per Capita"
+  )
+```
+In the long run, most of the big countries suffered an economic loss due to WWII, however in Japan and Germany it is more severe compared to other economies. The U.S keeps a steady growth thoroughout the history, followed by the U.K. Germany and Japan grew quickly after the war, caught up with the U.K and are closing the gap with the U.S. China also grew after the war, however due to its large population, it may not look as significant as other economies.
