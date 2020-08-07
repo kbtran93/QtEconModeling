@@ -1,0 +1,75 @@
+---
+title: "The Philip Curve & Forecasting Inflation"
+output: html_notebook
+---
+Load the libraries
+```{r}
+library(tidyverse)
+library(mosaic)
+```
+Data
+```{r}
+data("USMacroSW", package = "AER")
+```
+#The Philip Curve
+Calculate the quarterly inflation rate by taking the difference of log CPI.
+```{r}
+usm <- ts.intersect(USMacroSW, 4 * 100 * diff(log(USMacroSW[,"cpi"])))
+```
+Adding column names
+```{r}
+colnames(usm) <- c((colnames(USMacroSW)), "infl")
+```
+Extracting umemployment & inflation rate data and divide them into before and after 1970
+```{r}
+unemp1 <- usm[, "unemp"]
+unemp_b <- unemp1[time(unemp1) < 1970]
+unemp_a <- unemp1[time(unemp1) >= 1970]
+infl1 <- usm[, "infl"]
+infl_b <- infl1[time(infl1) < 1970]
+infl_a <- infl1[time(infl1) >= 1970]
+```
+Plot inflation rate vs. unemployment before and after 1970
+```{r}
+xyplot(infl_b ~ unemp_b, type = c("p", "smooth"))
+xyplot(infl_a ~ unemp_a, type = c("p", "smooth"))
+```
+#Forecasting Inflation
+Plot the inflation rate and its Autocorrelation Function
+```{r}
+plot(infl1, las = 1)
+acf(infl1, main = "")
+```
+Load the "tseries" package
+```{r}
+library(tseries)
+```
+Use the Augmented Dickey-Fuller Test to test the null hypothesis that an unit root is present in the time series. In other words, to test if β1 = 1 in the equation Yt = β0 + β1Yt−1 + ut .
+```{r}
+adf.test(usm[,"infl"])
+```
+The p-value indicates that the null hypothesis is not rejected. Plot and test again using the difference of inflation rate.
+```{r}
+diff.infl <- diff(usm[, "infl"])
+plot(diff.infl, las = 1)
+acf(diff.infl, main = "")
+adf.test(diff(usm[,"infl"]))
+```
+The null hypothesis is rejected.
+
+Autoregressive model with past values:
+Zt = β0 + β1Zt−1 + ut
+Predictive model:
+Zt+1 = β0<EST> + β1<EST> + Zt ,
+
+Load the "forecast" package
+```{r}
+library(forecast)
+```
+Calculating, printing and plotting the forecast data
+```{r}
+fit_ar4 <- Arima(infl1, order = c(2, 1, 0))
+forecast(fit_ar4, level = 95)
+plot(forecast(fit_ar4), las = 1, main = "")
+```
+
