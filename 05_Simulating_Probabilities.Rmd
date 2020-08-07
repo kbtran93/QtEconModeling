@@ -1,0 +1,216 @@
+---
+title: "Simulating Probabilities"
+output: html_notebook
+---
+# Binomial Distribution
+Generate 100 occurrences of flipping 10 coins, each with 30% probability
+```{r}
+rbinom(100, 10, 0.3)
+```
+If you flip 10 coins each with a 30% probability of coming up heads, what is the probability exactly 2 of them are heads?
+```{r}
+dbinom(2, 10, 0.3)
+```
+If you flip ten coins that each have a 30% probability of heads, what is the probability at least five are heads?
+```{r}
+1 - pbinom(4, 10, 0.3)
+```
+#Laws of probability
+##P(A & B)
+```{r}
+# Simulate 100,000 flips of a coin with a 40% chance of heads
+A <- rbinom(100000, 1, 0.4)
+# Simulate 100,000 flips of a coin with a 20% chance of heads
+B <- rbinom(100000, 1, 0.2)
+# Estimate the probability both A and B are heads
+mean(A&B)
+```
+##P(A | B)
+```{r}
+# Simulate 100,000 flips of a coin with a 60% chance of heads
+A <- rbinom(100000, 1, 0.6)
+
+# Simulate 100,000 flips of a coin with a 10% chance of heads
+B <- rbinom(100000, 1, 0.1)
+
+# Estimate the probability either A or B is heads
+mean(A|B)
+```
+X is a random Binom(10, .6) variable (10 flips of a coin with 60% chance of heads) and Y is a random Binom(10, .7) variable (10 flips of a coin with a 70% chance of heads), and they are independent. What is the probability that either of the variables is less than or equal to 4?
+```{r}
+# Use rbinom to simulate 100,000 draws from each of X and Y
+X <- rbinom(100000, 10, 0.6)
+Y <- rbinom(100000, 10, 0.7)
+
+# Estimate the probability either X or Y is <= to 4
+mean(X <= 4 | Y <= 4)
+
+# Use pbinom to calculate the probabilities separately
+prob_X_less <- pbinom(4, 10, 0.6)
+prob_Y_less <- pbinom(4, 10, 0.7)
+
+# Combine these to calculate the exact probability either <= 4
+prob_X_less + prob_Y_less - prob_X_less * prob_Y_less
+```
+##Multiplying X
+```{r}
+# Simulate 100,000 draws of a binomial with size 20 and p = .1
+X <- rbinom(100000, 20, 0.1)
+
+# Estimate the expected value of X
+mean(X)
+
+# Estimate the expected value of 5 * X
+mean(5*X)
+
+# Estimate the variance of X
+var(X)
+
+# Estimate the variance of 5 * X
+var(5*X)
+```
+##P(A + B)
+```{r}
+# Simulate 100,000 draws of X (size 20, p = .3) and Y (size 40, p = .1)
+X <- rbinom(100000, 20, 0.3)
+Y <- rbinom(100000, 40, 0.1)
+
+# Estimate the expected value of X + Y
+mean(X+Y)
+
+# Simulation from last exercise of 100,000 draws from X and Y
+X <- rbinom(100000, 20, .3) 
+Y <- rbinom(100000, 40, .1)
+
+# Find the variance of X + Y
+var(X+Y)
+
+# Find the variance of 3 * X + Y
+var(3*X + Y)
+```
+#Bayesian Statistics
+We see 11 out of 20 flips from a coin that is either fair (50% chance of heads) or biased (75% chance of heads). How likely is it that the coin is fair?
+```{r}
+# Simulate 50000 cases of flipping 20 coins from fair and from biased
+fair <- rbinom(50000, 20, .5)
+biased <- rbinom(50000, 20, .75)
+
+# How many fair cases, and how many biased, led to exactly 11 heads?
+fair_11 <- sum(fair == 11)
+biased_11 <- sum(biased == 11)
+
+# Find the fraction of fair coins that are 11 out of all coins that were 11
+fair_11 / (fair_11 + biased_11)
+```
+We see 16 out of 20 flips from a coin that is either fair (50% chance of heads) or biased (75% chance of heads). How likely is it that the coin is fair?
+```{r}
+# Simulate 50000 cases of flipping 20 coins from fair and from biased
+fair <- rbinom(50000, 20, 0.5)
+biased <- rbinom(50000, 20, 0.75)
+
+# How many fair cases, and how many biased, led to exactly 16 heads?
+fair_16 <- sum(fair == 16)
+biased_16 <- sum(biased == 16)
+
+# Find the fraction of fair coins that are 16 out of all coins that were 16
+fair_16 / (fair_16 + biased_16)
+```
+Suppose instead of a coin being either fair or biased, there are three possibilities: that the coin is fair (50% heads), low (25% heads), and high (75% heads). There is a 80% chance it is fair, a 10% chance it is biased low, and a 10% chance it is biased high.
+
+You see 14/20 flips are heads. What is the probability that the coin is fair?
+```{r}
+# Simulate 80,000 draws from fair coin, 10,000 from each of high and low coins
+flips_fair <- rbinom(80000, 20, 0.5)
+flips_high <- rbinom(10000, 20, 0.75)
+flips_low <-  rbinom(10000, 20, 0.25)
+
+# Compute the number of coins that resulted in 14 heads from each of these piles
+fair_14 <- sum(flips_fair == 14)
+high_14 <- sum(flips_high == 14)
+low_14 <-  sum(flips_low == 14)
+
+# Compute the posterior probability that the coin was fair
+fair_14 / (fair_14 + high_14 + low_14)
+```
+##Bayes Theorem
+There is a 50% chance the coin is fair and a 50% chance the coin is biased.
+
+Use the dbinom() function to calculate the exact probability of getting 11 heads out of 20 flips with a fair coin (50% chance of heads) and with a biased coin (75% chance of heads)
+```{r}
+# Use dbinom to calculate the probability of 11/20 heads with fair or biased coin
+probability_fair <- dbinom(11, 20, 0.5)
+probability_biased <- dbinom(11, 20, 0.75)
+
+# Calculate the posterior probability that the coin is fair
+probability_fair / (probability_fair + probability_biased)
+```
+Suppose we see 16 heads out of 20 flips, which would normally be strong evidence that the coin is biased. However, suppose we had set a prior probability of a 99% chance that the coin is fair (50% chance of heads), and only a 1% chance that the coin is biased (75% chance of heads).
+```{r}
+# Use dbinom to find the probability of 16/20 from a fair or biased coin
+probability_16_fair <- dbinom(16, 20, 0.5)
+probability_16_biased <- dbinom(16, 20, 0.75)
+
+# Use Bayes' theorem to find the posterior probability that the coin is fair
+(probability_16_fair * 0.99) / ((probability_16_fair * 0.99) + (probability_16_biased * 0.01))
+```
+#Distributions
+Define a function to compare histograms of 2 distributions
+```{r}
+compare_histogram <- function(variable1, variable2) {
+			  x <- data.frame(value = variable1, variable = "Variable 1")
+			  y <- data.frame(value = variable2, variable = "Variable 2")
+			  ggplot(rbind(x, y), aes(value)) +
+		    geom_histogram() +
+		    facet_wrap(~ variable, nrow = 2) }
+```
+##Normal Distribution
+```{r}
+# Draw a random sample of 100,000 from the Binomial(1000, .2) distribution
+binom_sample <- rbinom(100000, 1000, .2)
+
+# Draw a random sample of 100,000 from the normal approximation
+normal_sample <- rnorm(100000,200, sqrt(160))
+
+# Compare the two distributions with the compare_histograms function
+compare_histogram(binom_sample, normal_sample)
+```
+##Poisson Distribution
+Useful when modeling rare events
+```{r}
+# Draw a random sample of 100,000 from the Binomial(1000, .002) distribution
+binom_sample <- rbinom(100000, 1000, .002)
+
+# Draw a random sample of 100,000 from the Poisson approximation
+poisson_sample <- rpois(100000, 2)
+
+# Compare the two distributions with the compare_histograms function
+compare_histogram(binom_sample, poisson_sample)
+```
+##Geometric Distribution
+```{r}
+# Replications from the last exercise
+replications <- replicate(100000, which(rbinom(100, 1, .2) == 1)[1])
+
+# Generate 100,000 draws from the corresponding geometric distribution
+geom_sample <- rgeom(100000, .2)
+
+# Compare the two distributions with compare_histograms
+compare_histogram(replications, geom_sample)
+```
+A new machine arrives in a factory. This type of machine is very unreliable: every day, it has a 10% chance of breaking permanently. How long would you expect it to last?
+```{r}
+# Find the probability the machine breaks on 5th day or earlier
+pgeom(4, .1)
+
+# Find the probability the machine is still working on 20th day
+1 - pgeom(19, .1)
+```
+Graphing the probability that the machine still works
+```{r}
+# Calculate the probability of machine working on day 1-30
+still_working <- 1 - pgeom(0:29, .1)
+
+# Plot the probability for days 1 to 30
+qplot(1:30, still_working)
+```
+
